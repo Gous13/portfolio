@@ -9,11 +9,11 @@ declare global {
   var mongoose: MongooseCache | undefined;
 }
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio';
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+if (!process.env.MONGODB_URI) {
+  throw new Error('Please define the MONGODB_URI environment variable inside .env.production');
 }
+
+const MONGODB_URI = process.env.MONGODB_URI;
 
 let cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
@@ -31,12 +31,13 @@ async function connectDB() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts);
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+      return mongoose;
+    });
   }
 
   try {
-    const mongoose = await cached.promise;
-    cached.conn = mongoose;
+    cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
     throw e;

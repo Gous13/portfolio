@@ -10,18 +10,16 @@ interface ContactFormData {
 }
 
 export default function ContactForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'success' | 'error' | null>(null);
   
   const {
     register,
     handleSubmit,
-    reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
+    reset
   } = useForm<ContactFormData>();
 
   const onSubmit = async (data: ContactFormData) => {
-    setIsSubmitting(true);
     setSubmitStatus(null);
 
     try {
@@ -39,8 +37,6 @@ export default function ContactForm() {
       reset();
     } catch (error) {
       setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
